@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Layers</title>
+  <!--link href="toastr/toastr.css" rel="stylesheet"/-->
+  <!-- script src="resources/fabric.js-1.4.13/build.js"></script-->
+  <style>#space{display:none;}</style>
+</head>
+<body>
+    
+    <canvas id="canvas" width="1200" height="600"></canvas>
+  
+    <img src="space.jpg" id="space">
+    
+    <script src="node_modules/fabric/dist/fabric.js"></script>
+    <script>
+        var linear=function (t, b, c, d) {return c*t/d + b;};
+        var canvas = new fabric.StaticCanvas('canvas');
+
+        var panBackground=function(imgInstance){
+          imgInstance.animate('left', '1200', {
+          onChange: canvas.renderAll.bind(canvas),
+          easing:linear,
+          duration:(1200-imgInstance.left)*6,
+          onComplete: function(){
+            imgInstance.set({ left: -1100, top: 0 });
+            panBackground(imgInstance);
+            }});
+        }
+        
+        var rect = new fabric.Rect({
+            top : 100,
+            left : -100,
+            width : 60,
+            height : 70,
+            fill : 'red'
+        });
+
+        var background = document.getElementById('space');
+        var background = new fabric.Image(background, {
+          top : 0,
+          left : 0
+        });
+        canvas.add(background);
+
+
+        var imgElement = document.getElementById('space');
+        var imgInstance = new fabric.Image(imgElement, {
+          top : 0,
+          left : 0,
+          opacity:0.65
+        });
+        
+
+        
+        canvas.add(imgInstance);
+        panBackground(imgInstance);
+        
+        
+        var imgElement2 = document.getElementById('space');
+        var imgInstance2 = new fabric.Image(imgElement2, {
+          top : 0,
+          left : -1200,
+          opacity:0.65
+
+        });
+                
+        canvas.add(imgInstance2);
+        panBackground(imgInstance2);
+
+        
+    </script>
+    
+</body>
+</html>
+

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Layers</title>
+  <!--link href="toastr/toastr.css" rel="stylesheet"/-->
+  <!-- script src="resources/fabric.js-1.4.13/build.js"></script-->
+  <style>#space{display:none;}</style>
+</head>
+<body>
+    
+    <canvas id="canvas" width="1200" height="600"></canvas>
+  
+    
+    <script src="node_modules/fabric/dist/fabric.js"></script>
+    <script>
+        var canvas = new fabric.StaticCanvas('canvas');
+
+  var startPoints = [
+    {x: 0, y: 42},
+    {x: 155, y: 0},
+    {x: 155, y: 243},
+    {x: 0, y: 256}
+  ];
+  
+    var endPoints = [
+    {x: 185, y: 0},
+    {x: 250, y: 100},
+    {x: 385, y: 170},
+    {x: 0, y: 245}
+  ];
+
+  var nextPoints = function(polygon,counter){
+    //console.log("alskdj");
+    var points = Array();
+    //var points = translatePoints(polygon);
+    points = polygon.get('points');
+    //t = (counter-5)*10;
+    t= counter*20;
+    for (var i=0;i<points.length;i++) {
+      points[i]['x'] += t;
+      points[i]['y'] += t;
+    }
+  
+    
+   return points;
+  }
+  
+  
+  var randPoints = function(amount,min,max){
+    var points=Array();
+    for (var i = 0; i<=amount-1;i++){
+      points[i]={'x': Math.random()*(max-min)+min, 'y': Math.random()*(max-min)+min};
+    }
+    return points;
+    
+  }
+
+  var clonedStartPoints = startPoints.map(function(o){
+    return fabric.util.object.clone(o);
+  });
+  
+  var randomColor=function(){
+    var colorString='rgb('+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+')';
+    //console.log(colorString);
+    return colorString;
+    
+  }
+
+  var arrayColor=function(counter){
+    var array= ['red','orange','yellow'];
+    var i = counter % array.length;
+    return array[i];
+  }
+  
+  var polygon = new fabric.Polygon(clonedStartPoints, {
+    left: 0,
+    top: 0,
+    fill: 'purple',
+    selectable: false
+  });
+  var animatePoint= function animatePoint(i, prop, endPoints) {
+    fabric.util.animate({
+      startValue: polygon.points[i][prop],
+      endValue: endPoints[i][prop],
+      duration: 1000,
+      onChange: function(value) {
+        polygon.points[i][prop] = value;
+        // only render once
+        if (i === startPoints.length - 1 && prop === 'y') {
+          canvas.renderAll();
+        }
+      },
+      onComplete: function() {
+        polygon.setCoords();
+        // only start animation once
+        if (i === startPoints.length - 1 && prop === 'y') {
+          even = !even;
+          //polygon.setColor(randomColor());
+          animate();
+            
+          
+        }
+ 
+      }
+
+    });
+  }
+
+  var translatePoints = function(polygon){
+    var polygonCenter = polygon.getCenterPoint();
+
+    return polygon.get('points').map(function(p) {
+        return { 
+          x: polygonCenter.x + p.x, 
+          y: polygonCenter.y + p.y
+        };
+      });
+  }
+  
+  var clonePolygon=function(polygon,color){
+
+      
+      var translatedPoints = translatePoints(polygon);
+      
+      var clon = new fabric.Polygon(translatedPoints, {
+        
+        fill: color,
+        selectable: false,
+        opacity: 0.80,
+      });
+      
+      return clon;
+    
+  }
+  
+  var animate= function animate() {
+    if (counter<=10) {
+      //console.log(counter);
+      counter++;
+      
+      {
+        clon=clonePolygon(polygon,arrayColor(counter));
+      
+          canvas.add(clon);
+          clon.sendToBack();
+          
+      }
+      console.log(counter);
+      console.log(polygon);
+      console.log(nextPoints(polygon,counter));
+      
+      nextPoint = nextPoints(polygon,counter);
+      
+    //for (var i = 0, len = startPoints.length; i < len; i++) {
+    //  animatePoint(i, 'x', even ? endPoints : startPoints);
+    //  animatePoint(i, 'y', even ? endPoints : startPoints);
+    //}
+    
+    for (var i = 0, len = nextPoint.length; i < len; i++) {
+      animatePoint(i, 'x', nextPoint);
+      animatePoint(i, 'y', nextPoint);
+    }
+    }
+  }
+
+  
+  
+  
+  canvas.add(polygon);
+  var even = true;
+  var counter=0;
+  setTimeout(animate, 1000);
+  
+
+        
+    </script>
+    
+</body>
+</html>
+

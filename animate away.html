@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Layers</title>
+  <!--link href="toastr/toastr.css" rel="stylesheet"/-->
+  <!-- script src="resources/fabric.js-1.4.13/build.js"></script-->
+  <style>#space{display:none;}</style>
+</head>
+<body>
+    
+    <canvas id="canvas" width="1200" height="600"></canvas>
+  
+    <!--img src="space.jpg" id="space"-->
+    
+    <script src="node_modules/fabric/dist/fabric.js"></script>
+    <script>
+        var elements = Array();
+        var params = Array();
+        
+        var linear=function (t, b, c, d) {return c*t/d + b;};
+        var canvas = new fabric.Canvas('canvas');
+{ //CIRCLE
+        var circle = new fabric.Circle({
+          left: 100,
+          top: 100,
+          radius: 50
+        });
+        
+        circle.setGradient('fill', {
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: circle.height,
+          colorStops: {
+            0: 'white',
+            1: 'orange'
+          }
+        });
+
+        
+        canvas.add(circle);
+        elements.push(circle);
+        params.push({'name':'circle',
+                      'animate':'radius',
+                      'value':'200',
+                      'easing':linear,
+                      'duration':1000,
+                      'onCompleteAction':'animate',
+                      'onCompleteValue':'50',
+                      'cycle':'inf'});
+        
+        //circle.animate('radius', '200', {
+        //  onChange: canvas.renderAll.bind(canvas),
+        //  easing:linear,
+        //  duration:1000,
+        //  onComplete: function(){
+        //    
+        //  }
+        //  });
+        }
+{ //RECT
+        var rect = new fabric.Rect({
+          left:400,
+          top: 200,
+          width: 300,
+          height: 400,
+          fill:'blue'
+          })
+        
+        
+        canvas.add(rect);
+        elements.push(rect);
+        params.push({'name':'rect',
+                      'animate':'top',
+                      'value':'400',
+                      'easing':fabric.util.ease.easeOutBounce,
+                      'duration':2000,
+                      'onCompleteAction':'set',
+                      'onCompleteValue':{'top':200},
+                      'cycle':2});
+        
+
+        rect.setGradient('fill', {
+          x1: 0,
+          y1: rect.width,
+          x2: rect.height,
+          y2: 0,
+          colorStops: {
+            0: 'yellow',
+            1: 'red'
+          }
+        });
+  }
+  
+{ //RECT2
+        var rect2 = new fabric.Rect({
+          left:600,
+          top: 200,
+          width: 200,
+          height: 300,
+          fill:'red'
+          })
+        
+        
+        canvas.add(rect2);
+        elements.push(rect2);
+        params.push({'name':'rect2',
+                      'animate':'width',
+                      'value':'400',
+                      'easing':fabric.util.ease.easeOutBounce,
+                      'duration':2000,
+                      'onCompleteAction':'set',
+                      'onCompleteValue':{'width':200},
+                      'cycle':'inf'});
+        
+  }       
+{ //POLYGON
+        var startPoints = [
+          {x: 0, y: 42},
+          {x: 155, y: 0},
+          {x: 155, y: 243},
+          {x: 0, y: 256}
+        ];
+        
+    
+        
+ 
+  
+  var nextPoints = function(polygon,counter){
+    var points = Array();
+    var points = translatePoints(polygon);
+    
+    //console.log(points);
+    
+    t= counter*50;
+    
+    var targetPoints=Array();
+    targetPoints=[{x:-t,y:0},{x:t,y:0},
+                  {x:-t,y:0},{x:t,y:0}];
+    
+    //targetPoints=[{x:100,y:100},{x:t,y:100},
+    //              {x:100,y:100},{x:100,y:0}];    
+    
+    
+    for (var i=0;i<points.length;i++) {
+      points[i]['x'] = targetPoints[i]['x'] + points[i]['x'];
+      points[i]['y'] = targetPoints[i]['y'] + points[i]['y'];
+      
+          
+    //console.log(points);
+
+    }
+  
+      
+
+   return points;
+  }
+  
+  var translatePoints = function(polygon){
+    var polygonCenter = polygon.getCenterPoint();
+
+    return polygon.get('points').map(function(p) {
+        return { 
+          x: polygonCenter.x + p.x, 
+          y: polygonCenter.y + p.y
+        };
+      });
+  }
+        
+        var clonedStartPoints = startPoints.map(function(o){
+          return fabric.util.object.clone(o);
+        });
+        var polygon = new fabric.Polygon(clonedStartPoints, {
+          left: 0,
+          top: 0,
+          fill: 'purple',
+          selectable: false
+        });
+        
+        canvas.add(polygon);
+        elements.push(polygon);
+        //console.log(nextPoints(polygon,3));
+        params.push({'name':'polygon',
+                      'animate':'points',
+                      'destination':nextPoints(polygon,3),
+                      'easing':linear,
+                      'duration':1000,
+                      'onCompleteAction':'set',
+                      'onCompleteValue':{'points':startPoints},
+                      'cycle':'inf'});
+          
+ }
+        //polygon.set({'points':nextPoints(polygon,3)});
+        //setTimeout(function(){canvas.renderAll()},1000);
+
+var animateArrayOnComplete = function(arrayOfElements,arrayOfParams,counter){
+    {
+    
+    
+    //console.log(counter);
+    if (counter%arrayOfElements.length==0) {
+    
+    for (var j = 0; j < arrayOfElements.length;j++){
+      element = arrayOfElements[j];
+      params = arrayOfParams[j];
+      
+      if (params['cycle']>0 || params['cycle']=='inf'){
+        //console.log("cyclic");
+        if (params['onCompleteAction']=="set"){
+            params['onStartAction']='set';
+
+        }
+        if (params['onCompleteAction']=="animate"){
+          var val = params['onCompleteValue'];
+          params['onCompleteValue']=params['value'];
+          params['value']=val;
+        //console.log(params['value']);
+        }
+        
+        
+      }
+      
+    }}
+    }
+  }
+
+
+  function animateArray(arrayOfElements,arrayOfParams,counters) {
+    //console.log(arrayOfParams);
+    for (var k = 0; k < arrayOfElements.length;k++){
+      element = arrayOfElements[k];
+      params = arrayOfParams[k];
+      
+      if (params['onStartAction']=="set"){
+        params['onStartAction']='';
+
+        element.set(params['onCompleteValue']);
+      }
+      
+      if (params['animate']=='propertyArray') {
+          
+      } else if (params['animate']=='points'){
+        destination=params['destination'];
+        for (var i = 0, len = destination.length; i < len; i++) {
+ 	              animatePoint(element,i, 'x', destination,params);
+ 	              animatePoint(element,i, 'y', destination,params);
+ 	            } 
+      } else {
+        
+        element.animate(params['animate'], params['value'], {
+            onChange:function(value){
+                //to-do: render only once per loop
+                canvas.renderAll(); 
+              },
+            easing:params['easing'],
+            duration:params['duration'],
+            onComplete:function(){
+            counter[0]++;
+            animateArrayOnComplete(arrayOfElements,arrayOfParams,counter[0])}
+            });
+      }
+      
+    }
+  
+  
+  function animatePoint(polygon,i, coord, endPoints,params) {
+      fabric.util.animate({
+        startValue: polygon.points[i][coord],
+        endValue: endPoints[i][coord],
+        duration: params['duration'],
+        onChange: function(value) {
+          polygon.points[i][coord] = value;
+          
+          //if (i === polygon.points.length - 1 && coord === 'y') {
+            canvas.renderAll();
+          //}
+        },
+        onComplete: function() {
+          //polygon.setCoords();
+          //if (i === startPoints.length - 1 && coord === 'y') {
+            animateArrayOnComplete(arrayOfElements,arrayOfParams,counter[0]);
+          //}
+        }
+      });
+    }
+  
+  
+  
+      
+  };
+
+ counter=[0,0,0];
+        setInterval(animateArray,2500,elements,params,counter);
+        
+    </script>
+    
+</body>
+</html>
+
